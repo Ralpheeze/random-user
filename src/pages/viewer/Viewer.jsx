@@ -5,14 +5,10 @@ import UserCard from '../../component/UserCard/UserCard';
 const Viewer = () => {
   const [user, setUser] = useState(null); // State to store the fetched user data
   const [autoRefresh, setAutoRefresh] = useState(true); // State to control auto-refreshing of user data
-  //It controls whether new users should automatically be fetched every 5 seconds.
-
-
-
 
  useEffect(() => {
    // Function to fetch user data from the API
-   const fetchUser = async() => {
+   const fetchUser = async () => {
     try {
       const userAPI = await fetch('https://randomuser.me/api/'); //await helps to wait for the next line of code to finish before moving on.
       const userData = await userAPI.json(); // Parse the response as JSON
@@ -28,42 +24,24 @@ const Viewer = () => {
   fetchUser(); // Call the fetchUser function to get user data
 
 
- 
+  let intervalID;
+  if (autoRefresh ) { // Check if auto-refresh is enabled or if it exists or if it is true
+      intervalID = setInterval(() => { 
+      console.log("fetching user data...");
+      fetchUser(); // Call the fetchUser function to get user data
   
+    }, 3000); // Set an interval to fetch user data every 3 seconds
+  
+    //CLEANUP FUNCTION
+    return () => {
+      console.log('Cleaning up the data...');
+      clearInterval(intervalID); // Clear the interval when the component unmounts
+      console.log("Stop the connection to tje API")
+    };
+  }
+
 }, [autoRefresh]); // Empty dependency array means this effect runs once when the component mounts
 
-// const justRefresh = () => {
-//   setAutoRefresh(!autoRefresh); // Toggle the auto-refresh state
-//   // console.log('Auto refresh toggled:', autoRefresh);
-// }
-
-  // useEffect(() => {
-  // const fetchUser = async () => {
-  //   try {
-  //     const res = await fetch('https://randomuser.me/api/');
-  //     const data = await res.json();
-  //     setUser(data.results[0]);
-  //   } catch (err) {
-  //     console.error('Failed to fetch user:', err);
-  //   }
-  // };
-
-  
-  //   fetchUser(); // initial fetch
-
-  //   let interval;
-  //   if (autoRefresh) {
-  //     interval = setInterval(() => {
-  //       fetchUser();
-  //       console.log('Fetching new user...');
-  //     }, 5000); // refresh every 5 seconds
-  //   }
-
-  //   return () => {
-  //     console.log('Cleaning up...');
-  //     clearInterval(interval); // cleanup function that runs when a component unmounts
-  //   };
-  // }, [autoRefresh]);
 
   return (
     <div className="app">
@@ -78,7 +56,9 @@ const Viewer = () => {
 
       {/* SHORT-CIRCUIT CONDITIONAL RENDERING */}
       {/* {condition && Expression} */}
-      {user && <UserCard user={user} />}
+      {/* if the user exists (that is, if it is either true or it is defined ), then display the expression. It does not target the false option */}
+    
+      {user && <UserCard user={user} /> }
     </div>
 
 
